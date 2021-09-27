@@ -1,0 +1,21 @@
+# Ignore everything
+*
+
+# But not these files...
+!.gitignore
+!README.md
+
+#tutorial
+!tutorial
+!tutorial/shopSmart.py
+!tutorial/buyLotsOfFruit.py
+!tutorial/addition.py
+
+#search
+!search
+!search/searchAgents.py
+!search/search.py
+
+#multiagent
+!multiagent
+!multiagent/multiAgents.py
