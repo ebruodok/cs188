@@ -136,6 +136,9 @@ def breadthFirstSearch(problem):
     
     #initializing search tree
     fringe = util.Queue()
+    # print("breadthFirstSearch called (search.py)")
+    # print("passing in start state: ")
+    # print(problem.getStartState)
     fringe.push(problem.getStartState())
 
     #keep track of our path
@@ -144,20 +147,29 @@ def breadthFirstSearch(problem):
 
     #keep track of what states we went to already
     all_states = set()
+    # print("adding to all_states")
     all_states.add(problem.getStartState())
     while (fringe.isEmpty() == False):
         #get the current state
+        # print("popping fringe")
         curr_state = fringe.pop()
+        # print("curr_state:")
+        # print(curr_state)
 
         curr_path = all_paths.pop()
-        
+        # print("curr_path:")
+        # print(curr_path)
         #did we get to the end?
+        # print("problem is goal state?")
         if problem.isGoalState(curr_state):
+            print("true")
             #done !
             return curr_path
 
         #visit children
         for succ in problem.getSuccessors(curr_state):
+            # print("successor")
+            # print(succ)
             next_state = succ[0]
             #print(next_state)
             next_path = succ[1]
@@ -232,8 +244,49 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    #f(n) = g(n) + h(n) where g is the uniform cost function and i think h is the hueristic function
+   
+   
+    # implementation based on note
+    open_list = util.PriorityQueue()
+    # one needs to initialize the open list
+    current = problem.getStartState()
+
+    open_list.push((current,[],0), 0 + heuristic(current, problem))
+
+    closed_list = []
+
+    pop = open_list.pop()
+    pop_state = pop[0]
+    pop_path = pop[1]
+    pop_cost = pop[2]
+
+   
+    #i saw on piazza that this is how u know the algorithm should terminate
+    while(not problem.isGoalState(pop_state)):
+       
+        if pop_state not in closed_list:
+            closed_list.append(pop_state)
+
+            # closed_list.append(q[0])
+            list_of_successors = problem.getSuccessors(pop_state)
+            for successor in list_of_successors:
+                if successor[0] not in closed_list:
+                    new_list = list(pop_path)
+                    new_list.append(successor[1])
+
+                    new_weight = successor[2] + pop_cost+ heuristic(successor[0], problem)
+                    open_list.push((successor[0], new_list, successor[2] + pop_cost), new_weight)
+
+        if not open_list.isEmpty():
+            new_one= open_list.pop()
+            pop_state = new_one[0]
+            pop_path = new_one[1]
+            pop_cost = new_one[2]
+
+    return pop_path
+
 
 
 # Abbreviations
