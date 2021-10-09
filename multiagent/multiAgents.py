@@ -15,6 +15,7 @@
 from util import manhattanDistance
 from game import Directions
 import random, util
+import math
 
 from game import Agent
 
@@ -110,7 +111,37 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
     Your minimax agent (question 2)
     """
+    def getMax(self, gameState, depth):
+        #pacman calls this
+        if ((depth == 0) or (gameState.isWin()) or (gameState.isLose())):
+            return self.evaluationFunction(gameState)
+        v = -math.inf
+        for i in gameState.getLegalActions(0):
+            v = max(v, self.getMin(gameState.generateSuccessor(0, i), depth, 1))
+        return v
 
+
+
+    def getMin(self, gameState, depth, ghostId):
+        #ghosts call this
+        #base case
+        if ((depth == 0) or (gameState.isWin()) or (gameState.isLose())):
+            return self.evaluationFunction(gameState)
+        v = math.inf
+        #check to see if we've gone through all the states
+        numAgents = gameState.getNumAgents() - 1
+        if (ghostId == numAgents):
+            for i in gameState.getLegalActions(ghostId):
+                #all ghosts moved, so pacman can go next -> getMax
+                v = min(v, self.getMax(gameState.generateSuccessor(ghostId, i), depth - 1))
+        else: 
+            for i in gameState.getLegalActions(ghostId):
+                #move ghosts -> getMin
+                v = min(v, self.getMin(gameState.generateSuccessor(ghostId, i), depth, ghostId + 1))
+        return v
+        
+
+    
     def getAction(self, gameState):
         """
         Returns the minimax action from the current gameState using self.depth
@@ -135,7 +166,15 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        v = -math.inf
+        best = Directions.STOP 
+        for i in gameState.getLegalActions(0):
+            currState = gameState.generateSuccessor(0, i)
+            temp = v
+            v = max(v, self.getMin(currState, self.depth, 1))
+            if v > temp:
+                best = i
+        return best
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
