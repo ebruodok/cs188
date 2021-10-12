@@ -180,13 +180,79 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     """
     Your minimax agent with alpha-beta pruning (question 3)
     """
+   
+    def getMax(self, gameState, depth, alpha, beta): 
+        #LEC SLIDES:
+        # def max-value(state, α, β):
+        # initialize v = -∞
+        # for each successor of state:
+        # v = max(v, value(successor, α, β))
+        # if v ≥ β return v
+        # α = max(α, v)
+        # return v
+       #pacman calls this
+        if ((depth == 0) or (gameState.isWin()) or (gameState.isLose())):
+            return self.evaluationFunction(gameState)
+        v = -math.inf
+        for i in gameState.getLegalActions(0):
+            v = max(v, self.getMin(gameState.generateSuccessor(0, i), depth, alpha, beta, 1))
+            if (v > beta):
+                return v
+            alpha = max(alpha, v)
+        return v
+
+    def getMin(self, gameState, depth, alpha, beta, ghostId):
+        #LEC SLIDES:
+        # def min-value(state , α, β):
+        # initialize v = +∞
+        # for each successor of state:
+        # v = min(v, value(successor, α, β))
+        # if v ≤ α return v
+        # β = min(β, v)
+        # return v
+       #ghosts call this
+       #base case
+        if ((depth == 0) or (gameState.isWin()) or (gameState.isLose())):
+            return self.evaluationFunction(gameState)
+        v = math.inf
+        #check to see if we've gone through all the states
+        numAgents = gameState.getNumAgents() - 1
+        if (ghostId == numAgents):
+            for i in gameState.getLegalActions(ghostId):
+                #all ghosts moved, so pacman can go next -> getMax
+                v = min(v, self.getMax(gameState.generateSuccessor(ghostId, i), depth - 1, alpha, beta))
+                if (v < alpha):
+                    return v
+                beta  = min(v, beta)
+        else: 
+            for i in gameState.getLegalActions(ghostId):
+                #move ghosts -> getMin
+                v = min(v, self.getMin(gameState.generateSuccessor(ghostId, i), depth, alpha, beta, ghostId + 1))
+                if (v < alpha):
+                    return v
+                beta  = min(v, beta)
+        return v
 
     def getAction(self, gameState):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        v = -math.inf
+        best = Directions.STOP 
+        alpha = -math.inf
+        beta = math.inf
+        for i in gameState.getLegalActions(0):
+            currState = gameState.generateSuccessor(0, i)
+            temp = v
+            v = max(v, self.getMin(currState, self.depth, alpha, beta, 1))
+            if (v > temp):
+                best = i
+            if (v > beta):
+                return best
+            alpha = max(v, alpha)
+        return best
+        
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
