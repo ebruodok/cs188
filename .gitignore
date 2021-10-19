@@ -19,3 +19,9 @@
 #multiagent
 !multiagent
 !multiagent/multiAgents.py
+
+#reinforcement
+!reinforcement
+!reinforcement/valueIterationAgents.py
+!reinforcement/qlearningAgents.py
+!reinforcement/analysis.py
