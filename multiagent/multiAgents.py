@@ -76,23 +76,28 @@ class ReflexAgent(Agent):
 
         weight = 0 
         
-        curr = currentGameState.getFood()
-        currCount = curr.count()
-        minSofar = 1000000
+        bestFar = float("inf")
 
-        if currCount == newFood.count():
-            foodStates = newFood.asList()
-            for each in foodStates:
-                eachDistance = abs(each[0] - newPos[0]) + abs(each[1] - newPos[1])
-                if eachDistance < minSofar:
-                    minSofar= eachDistance
+        foodStates = newFood.asList()
+        for each in foodStates:
+            eachDistance = manhattanDistance(each, newPos)
+            if eachDistance < bestFar: 
+                bestFar = eachDistance
+
+        weight = 1/bestFar
+
 
         for ghosts in newGhostStates:
             ghostp = ghosts.getPosition()
-            manhattanDistance1 = abs(ghostp[0] - newPos[0]) + abs(ghostp[1] - newPos[1])
-            weight += manhattanDistance1 # high score = good
+            manhattanDistance1 = manhattanDistance(ghostp, newPos)
+            if (manhattanDistance1 == 0):
+                return -float("inf")
+            weight -= 2/(manhattanDistance1)
 
-        return 
+
+        weight += successorGameState.getScore()
+
+        return weight
 
 def scoreEvaluationFunction(currentGameState):
     """
