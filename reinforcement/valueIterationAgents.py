@@ -27,6 +27,7 @@
 
 
 import mdp, util
+import math
 
 from learningAgents import ValueEstimationAgent
 import collections
@@ -60,8 +61,16 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.runValueIteration()
 
     def runValueIteration(self):
-        # Write value iteration code here
         "*** YOUR CODE HERE ***"
+        #initialize V_0(s) = 0
+        V_i = 0
+        for i in range(k):
+            Q_arr = []
+            for state in mdp.getStates():
+                
+            V_i = max(Q_arr)
+    
+        # v_(k+1) = max ()
 
 
     def getValue(self, state):
@@ -77,7 +86,18 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #weighted sum
+        #probability of occurance * utility of going s->s'
+        #for all possible s' ?
+        q_val = 0
+        pairs_list = self.mdp.getTransitionStatesAndProbs(state, action)
+        for pair in pairs_list:
+            possible_state = pair[0]
+            prob = pair[1]
+            reward = self.mdp.getReward(state, action, possible_state)
+            #TO DO- add the discount * V*(s) into this qval
+            q_val += prob * reward
+        return q_val
 
     def computeActionFromValues(self, state):
         """
@@ -89,7 +109,16 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        if self.mdp.isTerminal(state):
+            return None
+        action_dict = {}
+        for action in self.mdp.getPossibleActions(state):
+            #fill this in later
+            #for now just do a random whatever
+            action_dict[action] = random.choice([1,2,3,4,5])
+        return max(action_dict, key= lambda:x action_dict[x])
+        
+
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
