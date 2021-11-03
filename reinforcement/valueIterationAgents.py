@@ -63,12 +63,12 @@ class ValueIterationAgent(ValueEstimationAgent):
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
         #initialize V_0(s) = 0
-        V_i = 0
-        for i in range(k):
+       V_i = 0
+        for i in range(self.iterations):
             Q_arr = []
-            for state in mdp.getStates():
+            for state in self.mdp.getStates():
                 
-            V_i = max(Q_arr)
+                V_i = max(Q_arr)
     
         # v_(k+1) = max ()
 
@@ -116,7 +116,7 @@ class ValueIterationAgent(ValueEstimationAgent):
             #fill this in later
             #for now just do a random whatever
             action_dict[action] = random.choice([1,2,3,4,5])
-        return max(action_dict, key= lambda:x action_dict[x])
+        return max(action_dict, key= lambda x: action_dict[x])
         
 
 
