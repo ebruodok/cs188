@@ -61,6 +61,7 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.runValueIteration()
 
     def runValueIteration(self):
+<<<<<<< HEAD
         "*** YOUR CODE HERE ***"
         #initialize V_0(s) = 0
        V_i = 0
@@ -71,6 +72,18 @@ class ValueIterationAgent(ValueEstimationAgent):
                 V_i = max(Q_arr)
     
         # v_(k+1) = max ()
+=======
+        "*** YOUR CODE HERE ***"        
+        for i in range(self.iterations):
+            q_vals = self.values.copy()
+            for state in self.mdp.getStates():
+                if self.mdp.isTerminal(state):
+                    q_vals[state] = 0 
+                else:
+                    best_action = self.computeActionFromValues(state)
+                    q_vals[state] = self.computeQValueFromValues(state, best_action)
+            self.values = q_vals
+>>>>>>> db637ad7fb3ccfae87c3626ba9bcc7994f30ed16
 
 
     def getValue(self, state):
@@ -94,9 +107,9 @@ class ValueIterationAgent(ValueEstimationAgent):
         for pair in pairs_list:
             possible_state = pair[0]
             prob = pair[1]
-            reward = self.mdp.getReward(state, action, possible_state)
-            #TO DO- add the discount * V*(s) into this qval
-            q_val += prob * reward
+            if (self.getValue(possible_state) != None):
+                reward = self.mdp.getReward(state, action, possible_state)
+                q_val += prob * (reward + (self.discount * self.getValue(possible_state)))
         return q_val
 
     def computeActionFromValues(self, state):
@@ -113,9 +126,13 @@ class ValueIterationAgent(ValueEstimationAgent):
             return None
         action_dict = {}
         for action in self.mdp.getPossibleActions(state):
+<<<<<<< HEAD
             #fill this in later
             #for now just do a random whatever
             action_dict[action] = random.choice([1,2,3,4,5])
+=======
+            action_dict[action] = self.computeQValueFromValues(state, action)
+>>>>>>> db637ad7fb3ccfae87c3626ba9bcc7994f30ed16
         return max(action_dict, key= lambda x: action_dict[x])
         
 
