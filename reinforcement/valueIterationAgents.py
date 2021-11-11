@@ -157,6 +157,25 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
 
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
+        """
+        from project spec:
+            In the first iteration, only update the value of the first state in the states list. 
+            In the second iteration, only update the value of the second. 
+            Keep going until you have updated the value of each state once, 
+            then start back at the first state for the subsequent iteration. 
+            If the state picked for updating is terminal, nothing happens in that iteration.
+        """
+        num_states = sum(self.values.itervalues())
+        vals = self.values.copy()
+        for i in range(self.iterations):
+            state = vals.__getitem__(i%num_states)
+            if self.mdp.isTerminal(state):
+                continue
+            else:
+                action = self.computeActionFromValues(state)
+                vals[state] = self.computeQValueFromValues(state, action)
+        self.values = vals
+
 
 class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
     """
@@ -175,6 +194,68 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
         self.theta = theta
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
 
+    #helper function to compute predecessors of a state
+    #returns a set -- avoids duplicates
+    def computePredecessors(self, curr_state):
+        predecessors = set()
+        for state in self.mdp.getStates():
+            for action in self.mdp.getPossibleActions(state):
+                pairs_list = self.mdp.getTransitionStatesAndProbs(state, action)
+                for pair in pairs_list:
+                    possible_state = pair[0]
+                    prob = pair[1]
+                    if (possible_state == curr_state) and (prob > 0):
+                        #state is a predecessor of curr_state!
+                        predecessors.add(state)
+                        break
+                else:
+                    continue
+                break
+        return predecessors
+
+
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
+        #compute predecessors of all states
+        """
+        First, we define the predecessors of a state s as all states 
+        that have a nonzero probability of reaching s by taking some action a.
+        """
+        predecessor_dict = {}
+        for s in self.mdp.getStates():
+            #key: state
+            #value: set of all possible predecessors
+            predecessor_dict[s] = self.computePredecessors(curr_state)
+
+        #initialize empty priority queue
+        queue = util.PriorityQueue()
+        #for each non-terminal state s, do:
+        for s in self.mdp.getStates():
+            #find the absolute value of the diff between current value of s in self.values 
+            #and the highest q value across all possible actions from s
+            best_action = self.computeActionFromValues(s)
+            highest_q = self.computeQValueFromValues(s, best_action)
+            diff = abs(self.getValue(s) - highest_q)
+            #push s to the queue with priority negative diff
+            queue.update(s, -diff)
+        #for iteration in 0, 1, 2, ..., self.iterations-1, do:
+        for i in range(self.iterations):
+            #if the priority queue is empty, terminate
+            if queue.isEmpty():
+                break
+            #pop a state off the priority queue
+            s = queue.pop()
+            #update the value of s (if it is not a terminal state) in self.values
+            if not self.mdp.isTerminal(s):
+                #dosomething
+            #for each predecessor p of s do:
+            for p in predecessor_dict[s]:
+                #find the absolute value of the diff between current value of p in self.values 
+                #and the highest q value across all possible actions from p
+                best_action = self.computeActionFromValues(p)
+                highest_q = self.computeQValueFromValues(p, best_action)
+                diff = abs(self.getValue(p) - highest_q)
+                #if diff > theta, push p directly into the priority queue with priority -diff
+                if (diff > self.theta):
+                    queue.update(p, -diff)
 
