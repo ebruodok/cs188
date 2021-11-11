@@ -225,7 +225,7 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
         for s in self.mdp.getStates():
             #key: state
             #value: set of all possible predecessors
-            predecessor_dict[s] = self.computePredecessors(curr_state)
+            predecessor_dict[s] = self.computePredecessors(s)
 
         #initialize empty priority queue
         queue = util.PriorityQueue()
@@ -247,7 +247,8 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
             s = queue.pop()
             #update the value of s (if it is not a terminal state) in self.values
             if not self.mdp.isTerminal(s):
-                #dosomething
+                best_action = self.computeActionFromValues(s)
+                self.values[s] = self.computeQValueFromValues(s, best_action)
             #for each predecessor p of s do:
             for p in predecessor_dict[s]:
                 #find the absolute value of the diff between current value of p in self.values 
