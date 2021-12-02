@@ -118,7 +118,7 @@ class QLearningAgent(ReinforcementAgent):
           #take a random action
           return random.choice(legalActions)
         #take the best policy action
-        return self.computeActionFromQValues(state)
+        return self.getPolicy(state)
 
     def update(self, state, action, nextState, reward):
         """
@@ -133,7 +133,7 @@ class QLearningAgent(ReinforcementAgent):
         # q(s,a)<- (1-alpha)q(s,a) + alpha*[sample]
         # sample estimate = R(s,a,s') + (discount * max action for next state)
         curr_q = self.getQValue(state, action)
-        sample = reward + (self.discount * self.computeValueFromQValues(nextState))
+        sample = reward + (self.discount * self.getValue(nextState))
         next_q = ((1 - self.alpha) * curr_q) + (self.alpha * sample)
         self.q_values[(state, action)] = next_q
 

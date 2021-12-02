@@ -68,8 +68,8 @@ class ValueIterationAgent(ValueEstimationAgent):
                 if self.mdp.isTerminal(state):
                     q_vals[state] = 0 
                 else:
-                    best_action = self.computeActionFromValues(state)
-                    q_vals[state] = self.computeQValueFromValues(state, best_action)
+                    best_action = self.getAction(state)
+                    q_vals[state] = self.getQValue(state, best_action)
             self.values = q_vals
 
 
@@ -113,7 +113,7 @@ class ValueIterationAgent(ValueEstimationAgent):
             return None
         action_dict = {}
         for action in self.mdp.getPossibleActions(state):
-            action_dict[action] = self.computeQValueFromValues(state, action)
+            action_dict[action] = self.getQValue(state, action)
         return max(action_dict, key= lambda x: action_dict[x])
         
 
@@ -172,8 +172,8 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
             if self.mdp.isTerminal(state):
                 continue
             else:
-                action = self.computeActionFromValues(state)
-                vals[state] = self.computeQValueFromValues(state, action)
+                action = self.getAction(state)
+                vals[state] = self.getQValue(state, action)
         self.values = vals
 
 
@@ -233,8 +233,8 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
         for s in self.mdp.getStates():
             #find the absolute value of the diff between current value of s in self.values 
             #and the highest q value across all possible actions from s
-            best_action = self.computeActionFromValues(s)
-            highest_q = self.computeQValueFromValues(s, best_action)
+            best_action = self.getAction(s)
+            highest_q = self.getQValue(s, best_action)
             diff = abs(self.getValue(s) - highest_q)
             #push s to the queue with priority negative diff
             queue.update(s, -diff)
@@ -247,14 +247,14 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
             s = queue.pop()
             #update the value of s (if it is not a terminal state) in self.values
             if not self.mdp.isTerminal(s):
-                best_action = self.computeActionFromValues(s)
-                self.values[s] = self.computeQValueFromValues(s, best_action)
+                best_action = self.getAction(s)
+                self.values[s] = self.getQValue(s, best_action)
             #for each predecessor p of s do:
             for p in predecessor_dict[s]:
                 #find the absolute value of the diff between current value of p in self.values 
                 #and the highest q value across all possible actions from p
-                best_action = self.computeActionFromValues(p)
-                highest_q = self.computeQValueFromValues(p, best_action)
+                best_action = self.getAction(p)
+                highest_q = self.getQValue(p, best_action)
                 diff = abs(self.getValue(p) - highest_q)
                 #if diff > theta, push p directly into the priority queue with priority -diff
                 if (diff > self.theta):
