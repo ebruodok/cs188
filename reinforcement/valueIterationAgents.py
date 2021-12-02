@@ -61,17 +61,17 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.runValueIteration()
 
     def runValueIteration(self):
-<<<<<<< HEAD
-        "*** YOUR CODE HERE ***"
-        #initialize V_0(s) = 0
-       V_i = 0
-        for i in range(self.iterations):
-            Q_arr = []
-            for state in self.mdp.getStates():
+# <<<<<<< HEAD
+#         "*** YOUR CODE HERE ***"
+#         #initialize V_0(s) = 0
+#        V_i = 0
+#         for i in range(self.iterations):
+#             Q_arr = []
+#             for state in self.mdp.getStates():
                 
-                V_i = max(Q_arr)
+#                 V_i = max(Q_arr)
     
-        # v_(k+1) = max ()
+#         # v_(k+1) = max ()
 =======
         "*** YOUR CODE HERE ***"        
         for i in range(self.iterations):
@@ -83,7 +83,7 @@ class ValueIterationAgent(ValueEstimationAgent):
                     best_action = self.computeActionFromValues(state)
                     q_vals[state] = self.computeQValueFromValues(state, best_action)
             self.values = q_vals
->>>>>>> db637ad7fb3ccfae87c3626ba9bcc7994f30ed16
+# >>>>>>> db637ad7fb3ccfae87c3626ba9bcc7994f30ed16
 
 
     def getValue(self, state):
@@ -126,13 +126,13 @@ class ValueIterationAgent(ValueEstimationAgent):
             return None
         action_dict = {}
         for action in self.mdp.getPossibleActions(state):
-<<<<<<< HEAD
-            #fill this in later
-            #for now just do a random whatever
-            action_dict[action] = random.choice([1,2,3,4,5])
-=======
+# <<<<<<< HEAD
+#             #fill this in later
+#             #for now just do a random whatever
+#             action_dict[action] = random.choice([1,2,3,4,5])
+# =======
             action_dict[action] = self.computeQValueFromValues(state, action)
->>>>>>> db637ad7fb3ccfae87c3626ba9bcc7994f30ed16
+# >>>>>>> db637ad7fb3ccfae87c3626ba9bcc7994f30ed16
         return max(action_dict, key= lambda x: action_dict[x])
         
 
@@ -173,9 +173,25 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
               mdp.isTerminal(state)
         """
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
+        #initializing the values passed into this constructor exactly the same as in question 1
+        # self.mdp = mdp
+        # self.discount = discount 
+        # self.iterations = iterations
+
+        # self.values = util.Counter() # A Counter is a dict with default 0
+        # self.runValueIteration()
 
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
+        list_states = self.mdp.getStates()
+        vals = self.values.copy()
+        for i in range(self.iterations):
+            state = list_states[i%len(list_states)]
+            if self.mdp.isTerminal(state):
+                continue
+            else:
+                action = self.computeActionFromValues(state)
+                self.values[state] = self.computeQValueFromValues(state, action)
 
 class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
     """
