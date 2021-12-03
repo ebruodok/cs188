@@ -273,6 +273,8 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
         queue = util.PriorityQueue()
         #for each non-terminal state s, do:
         for s in self.mdp.getStates():
+            if self.mdp.isTerminal(s):
+                continue
             #find the absolute value of the diff between current value of s in self.values 
             #and the highest q value across all possible actions from s
             best_action = self.getAction(s)
