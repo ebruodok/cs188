@@ -61,18 +61,6 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.runValueIteration()
 
     def runValueIteration(self):
-# <<<<<<< HEAD
-#         "*** YOUR CODE HERE ***"
-#         #initialize V_0(s) = 0
-#        V_i = 0
-#         for i in range(self.iterations):
-#             Q_arr = []
-#             for state in self.mdp.getStates():
-                
-#                 V_i = max(Q_arr)
-    
-#         # v_(k+1) = max ()
-=======
         "*** YOUR CODE HERE ***"        
         for i in range(self.iterations):
             q_vals = self.values.copy()
@@ -80,10 +68,9 @@ class ValueIterationAgent(ValueEstimationAgent):
                 if self.mdp.isTerminal(state):
                     q_vals[state] = 0 
                 else:
-                    best_action = self.getAction(state)
-                    q_vals[state] = self.getQValue(state, best_action)
+                    best_action = self.computeActionFromValues(state)
+                    q_vals[state] = self.computeQValueFromValues(state, best_action)
             self.values = q_vals
-# >>>>>>> db637ad7fb3ccfae87c3626ba9bcc7994f30ed16
 
 
     def getValue(self, state):
@@ -126,17 +113,7 @@ class ValueIterationAgent(ValueEstimationAgent):
             return None
         action_dict = {}
         for action in self.mdp.getPossibleActions(state):
-<<<<<<< HEAD
-# <<<<<<< HEAD
-#             #fill this in later
-#             #for now just do a random whatever
-#             action_dict[action] = random.choice([1,2,3,4,5])
-# =======
             action_dict[action] = self.computeQValueFromValues(state, action)
-# >>>>>>> db637ad7fb3ccfae87c3626ba9bcc7994f30ed16
-=======
-            action_dict[action] = self.getQValue(state, action)
->>>>>>> b2e2c503814e52a1e8a7d3de8df00254402d66cd
         return max(action_dict, key= lambda x: action_dict[x])
         
 
@@ -177,17 +154,19 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
               mdp.isTerminal(state)
         """
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
-        #initializing the values passed into this constructor exactly the same as in question 1
-        # self.mdp = mdp
-        # self.discount = discount 
-        # self.iterations = iterations
-
-        # self.values = util.Counter() # A Counter is a dict with default 0
-        # self.runValueIteration()
 
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
-<<<<<<< HEAD
+        """
+        from project spec:
+            In the first iteration, only update the value of the first state in the states list. 
+            In the second iteration, only update the value of the second. 
+            Keep going until you have updated the value of each state once, 
+            then start back at the first state for the subsequent iteration. 
+            If the state picked for updating is terminal, nothing happens in that iteration.
+        """
+        #num_states = sum(self.values.itervalues())
+
         list_states = self.mdp.getStates()
         vals = self.values.copy()
         for i in range(self.iterations):
@@ -197,27 +176,8 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
             else:
                 action = self.computeActionFromValues(state)
                 self.values[state] = self.computeQValueFromValues(state, action)
-# =======
-#         """
-#         from project spec:
-#             In the first iteration, only update the value of the first state in the states list. 
-#             In the second iteration, only update the value of the second. 
-#             Keep going until you have updated the value of each state once, 
-#             then start back at the first state for the subsequent iteration. 
-#             If the state picked for updating is terminal, nothing happens in that iteration.
-#         """
-#         num_states = sum(self.values.itervalues())
-#         vals = self.values.copy()
-#         for i in range(self.iterations):
-#             state = vals.__getitem__(i%num_states)
-#             if self.mdp.isTerminal(state):
-#                 continue
-#             else:
-#                 action = self.getAction(state)
-#                 vals[state] = self.getQValue(state, action)
-#         self.values = vals
+        
 
-# >>>>>>> b2e2c503814e52a1e8a7d3de8df00254402d66cd
 
 class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
     """
@@ -275,10 +235,11 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
         for s in self.mdp.getStates():
             if self.mdp.isTerminal(s):
                 continue
+            
             #find the absolute value of the diff between current value of s in self.values 
             #and the highest q value across all possible actions from s
-            best_action = self.getAction(s)
-            highest_q = self.getQValue(s, best_action)
+            best_action = self.computeActionFromValues(s)
+            highest_q = self.computeQValueFromValues(s, best_action)
             diff = abs(self.getValue(s) - highest_q)
             #push s to the queue with priority negative diff
             queue.update(s, -diff)
@@ -291,16 +252,15 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
             s = queue.pop()
             #update the value of s (if it is not a terminal state) in self.values
             if not self.mdp.isTerminal(s):
-                best_action = self.getAction(s)
-                self.values[s] = self.getQValue(s, best_action)
+                best_action = self.computeActionFromValues(s)
+                self.values[s] = self.computeQValueFromValues(s, best_action)
             #for each predecessor p of s do:
             for p in predecessor_dict[s]:
                 #find the absolute value of the diff between current value of p in self.values 
                 #and the highest q value across all possible actions from p
-                best_action = self.getAction(p)
-                highest_q = self.getQValue(p, best_action)
+                best_action = self.computeActionFromValues(p)
+                highest_q = self.computeQValueFromValues(p, best_action)
                 diff = abs(self.getValue(p) - highest_q)
                 #if diff > theta, push p directly into the priority queue with priority -diff
                 if (diff > self.theta):
                     queue.update(p, -diff)
-
