@@ -25,3 +25,8 @@
 !reinforcement/valueIterationAgents.py
 !reinforcement/qlearningAgents.py
 !reinforcement/analysis.py
+
+#tracking
+!tracking
+!tracking/bustersAgents.py
+!tracking/inference.py
