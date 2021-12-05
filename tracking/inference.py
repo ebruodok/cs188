@@ -75,7 +75,13 @@ class DiscreteDistribution(dict):
         {}
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        #if total value of distribution is 0 do nothing
+        if (len(self.items()) == 0) or (self.total() == 0):
+            return
+        d = self.copy()
+        total = d.total()
+        for key, value in d.items():
+            self[key] = value/total
 
     def sample(self):
         """
@@ -99,7 +105,13 @@ class DiscreteDistribution(dict):
         0.0
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        myCopy = self.copy()
+        myCopy.normalize()
+        keys = [key for key, value in myCopy.items()]
+        values = [value for key, value in myCopy.items()]
+        pick = random.choices(keys, weights=values)
+        return pick[0]
+
 
 
 class InferenceModule:
@@ -169,7 +181,24 @@ class InferenceModule:
         Return the probability P(noisyDistance | pacmanPosition, ghostPosition).
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        # So, if the ghost’s position is the jail position, 
+        # then the observation is None with probability 1, 
+        # and everything else with probability 0
+
+        # Conversely, if the distance reading is not None, 
+        # then the ghost is in jail with probability 0. 
+        if ghostPosition == jailPosition:
+            if noisyDistance is not None:
+                return 0
+            if noisyDistance is None:
+                return 1
+        
+        if noisyDistance is None:
+            return 0
+            
+        trueDistance = manhattanDistance(pacmanPosition, ghostPosition)
+        prob = busters.getObservationProbability(noisyDistance, trueDistance)
+        return prob
 
     def setGhostPosition(self, gameState, ghostPosition, index):
         """
