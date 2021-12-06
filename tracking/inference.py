@@ -481,7 +481,24 @@ class JointParticleFilter(ParticleFilter):
         the DiscreteDistribution may be useful.
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+
+        # A correct implementation will weight and resample the entire list of
+        # particles based on the observation of all ghost distances.
+        pacmanPosition = gameState.getPacmanPosition()
+
+        dist = DiscreteDistribution()
+        for particle in self.particles:
+            prob = 1
+            for i in range(self.numGhosts):
+                jailPosition = self.getJailPosition(i)
+                prob *= self.getObservationProb(observation[i], pacmanPosition, particle[i], jailPosition)
+            dist[particle] += prob
+        
+        if dist.total() == 0:
+            self.initializeUniformly(gameState)
+            return
+        
+        self.particles = [dist.sample() for _ in range(self.numParticles)]
 
     def elapseTime(self, gameState):
         """
