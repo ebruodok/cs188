@@ -185,17 +185,16 @@ class DigitClassificationModel(object):
                 # For Q2 and Q3, we require that total size of the dataset be evenly divisible by the batch size.
         # Learning rate: between 0.001 and 1.0.
         # Number of hidden layers: between 1 and 3.
-        self.hidden_layer_size = 300
-        self.batch_size = 100
-        self.learning_rate = 0.01
+        self.batch_size = 150
+        self.learning_rate = 0.5
 
-        # Since the size of the input is (batch_size x 784), the W_1 dimension should be (784 x hidden_layer_size)
-        # W_2 dimension should be (hidden_layer_size x 10)
+        # Since the size of the input is (batch_size x 784), the W_1 dimension should be (784 x batch_size)
+        # W_2 dimension should be (batch_size x 10)
         #need to multiply input by (__ x 10) matrix to get output correct dimension
-        self.W_1 = nn.Parameter(784, self.hidden_layer_size)
-        self.W_2 = nn.Parameter(self.hidden_layer_size, 10)
+        self.W_1 = nn.Parameter(784, self.batch_size)
+        self.W_2 = nn.Parameter(self.batch_size, 10)
 
-        self.b_1 = nn.Parameter(1, self.hidden_layer_size)
+        self.b_1 = nn.Parameter(1, self.batch_size)
         self.b_2 = nn.Parameter(1, 10)
 
     def run(self, x):
@@ -235,7 +234,7 @@ class DigitClassificationModel(object):
         """
         "*** YOUR CODE HERE ***"
         y_pred = self.run(x)
-        return nn.SoftmaxLoss(y, y_pred)
+        return nn.SoftmaxLoss(y_pred, y)
 
     def train(self, dataset):
         """
