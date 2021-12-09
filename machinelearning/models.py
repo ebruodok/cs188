@@ -29,6 +29,8 @@ class PerceptronModel(object):
         Returns: a node containing a single number (the score)
         """
         "*** YOUR CODE HERE ***"
+        return nn.DotProduct(self.get_weights(), x)
+
 
     def get_prediction(self, x):
         """
@@ -37,12 +39,45 @@ class PerceptronModel(object):
         Returns: 1 or -1
         """
         "*** YOUR CODE HERE ***"
+        result = self.run(x)
+        scalar_result = nn.as_scalar(result)
+        if scalar_result >=0:
+            return 1
+        else:
+            return -1
 
     def train(self, dataset):
         """
         Train the perceptron until convergence.
         """
         "*** YOUR CODE HERE ***"
+
+        #iterating like shown in the spec
+        batch_size = 1
+
+        #assuming that the data will always have something that is missclassified
+        # converged = True
+
+        while True:
+            converged =True
+
+            for x, y in dataset.iterate_once(batch_size):
+                if self.get_prediction(x) != nn.as_scalar(y):
+                    converged = False
+                    #https://inst.eecs.berkeley.edu/~cs188/fa21/assets/slides/lec21.pdf#page=16
+                    #following the instructions on this slide to properly use the update function
+                    # if nn.as_scalar(self.w) * self.get_prediction(x) >= 0:
+                    #     y_star = 1
+                    # else: 
+                    #     y_star = -1
+
+                    # direction = self.get_prediction(x)
+
+                    # self.w.update(x, nn.as_scalar(y))
+                    nn.Parameter.update(self.w, x, nn.as_scalar(y))
+
+            if converged: 
+                break
 
 class RegressionModel(object):
     """
