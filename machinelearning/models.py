@@ -1,4 +1,6 @@
 import nn
+import numpy as np
+import matplotlib.pyplot as plt
 
 class PerceptronModel(object):
     def __init__(self, dimensions):
@@ -50,7 +52,28 @@ class RegressionModel(object):
     """
     def __init__(self):
         # Initialize your model parameters here
+        
         "*** YOUR CODE HERE ***"
+        # RECOMMENDED VALS FOR HYPERPARAMETERS
+        # Hidden layer sizes: between 10 and 400.
+        # Batch size: between 1 and the size of the dataset. 
+                # For Q2 and Q3, we require that total size of the dataset be evenly divisible by the batch size.
+        # Learning rate: between 0.001 and 1.0.
+        # Number of hidden layers: between 1 and 3.
+        self.hidden_layer_size = 60
+        self.batch_size = 100
+        self.learning_rate = 0.01
+        
+        # FROM PIAZZA: Since the size of the input is (batch_size x 1), the W_1 dimension should be (1 x hidden_layer_size)
+
+        # parameter matrices W_1 and W_2
+        self.W_1 = nn.Parameter(1, self.hidden_layer_size)
+        self.W_2 = nn.Parameter(self.hidden_layer_size, 1)
+
+        # parameter vectors b_1 and b_2
+        self.b_1 = nn.Parameter(1, self.hidden_layer_size)
+        self.b_2 = nn.Parameter(1, 1)
+        
 
     def run(self, x):
         """
@@ -62,6 +85,13 @@ class RegressionModel(object):
             A node with shape (batch_size x 1) containing predicted y-values
         """
         "*** YOUR CODE HERE ***"
+        # f(x) = relu(x dot W_1 + b_1) dot W_2 + b_2
+        
+        myW_1 = nn.Linear(x, self.W_1)
+        relu = nn.ReLU(nn.AddBias(myW_1, self.b_1))
+        myW_2 = nn.Linear(relu, self.W_2)
+        y_pred = nn.AddBias(myW_2, self.b_2)
+        return y_pred
 
     def get_loss(self, x, y):
         """
@@ -74,12 +104,30 @@ class RegressionModel(object):
         Returns: a loss node
         """
         "*** YOUR CODE HERE ***"
+        y_pred = self.run(x)
+        return nn.SquareLoss(y, y_pred)
 
     def train(self, dataset):
         """
         Trains the model.
         """
-        "*** YOUR CODE HERE ***"
+        for x, y in dataset.iterate_forever(self.batch_size):
+            # FROM PIAZZA: update() is tuned to do gradient ASCENT
+            # so put in negative multiplier
+            loss = self.get_loss(x, y)
+            grad_W_1, grad_b_1, grad_W_2, grad_b_2 = nn.gradients(loss, [self.W_1, self.b_1, self.W_2, self.b_2])
+
+            self.W_1.update(grad_W_1, -self.learning_rate)
+            self.b_1.update(grad_b_1, -self.learning_rate)
+            self.W_2.update(grad_W_2, -self.learning_rate)
+            self.b_2.update(grad_b_2, -self.learning_rate)
+
+            # Your implementation will receive full points if it gets a loss of 
+            # 0.02 or better, averaged across all examples in the dataset.
+            print(nn.as_scalar(loss))
+            if nn.as_scalar(loss) <= 0.015:
+                return
+
 
 class DigitClassificationModel(object):
     """
