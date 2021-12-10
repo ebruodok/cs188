@@ -94,7 +94,6 @@ class RegressionModel(object):
         # Batch size: between 1 and the size of the dataset. 
                 # For Q2 and Q3, we require that total size of the dataset be evenly divisible by the batch size.
         # Learning rate: between 0.001 and 1.0.
-        # Number of hidden layers: between 1 and 3.
         self.hidden_layer_size = 60
         self.batch_size = 100
         self.learning_rate = 0.01
@@ -180,17 +179,14 @@ class DigitClassificationModel(object):
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
         # RECOMMENDED VALS FOR HYPERPARAMETERS
-        # Hidden layer sizes: between 10 and 400.
         # Batch size: between 1 and the size of the dataset. 
                 # For Q2 and Q3, we require that total size of the dataset be evenly divisible by the batch size.
         # Learning rate: between 0.001 and 1.0.
-        # Number of hidden layers: between 1 and 3.
         self.batch_size = 150
         self.learning_rate = 0.5
 
         # Since the size of the input is (batch_size x 784), the W_1 dimension should be (784 x batch_size)
         # W_2 dimension should be (batch_size x 10)
-        #need to multiply input by (__ x 10) matrix to get output correct dimension
         self.W_1 = nn.Parameter(784, self.batch_size)
         self.W_2 = nn.Parameter(self.batch_size, 10)
 
@@ -271,9 +267,16 @@ class LanguageIDModel(object):
 
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
-        self.hidden_layer_size = 60
+        self.hidden_layer_size = 200
         self.batch_size = 100
-        self.learning_rate = 0.01
+        self.learning_rate = 0.02
+
+        self.W_1 = nn.Parameter(self.num_chars, self.hidden_layer_size)
+        self.W_hidden = nn.Parameter(self.hidden_layer_size, self.hidden_layer_size)
+        self.W_2 = nn.Parameter(self.hidden_layer_size, 5)
+
+        self.b_1 = nn.Parameter(1, self.hidden_layer_size)
+        self.b_2 = nn.Parameter(1, 5)
 
     def run(self, xs):
         """
@@ -305,6 +308,16 @@ class LanguageIDModel(object):
                 (also called logits)
         """
         "*** YOUR CODE HERE ***"
+        #z_0 = x_0 dot W
+        z = nn.Linear(xs[0], self.W_1)
+        for x_i in xs[1:]:
+            #FROM PIAZZA: you can think of h_i in the equation as ReLU(z_i−1+b).
+            h_i = nn.ReLU(nn.AddBias(z, self.b_1))
+            z = nn.Add(nn.Linear(x_i, self.W_1), nn.Linear(h_i, self.W_hidden))
+
+        myW_2 = nn.Linear(z, self.W_2)
+        y_pred = nn.AddBias(myW_2, self.b_2)
+        return y_pred
 
     def get_loss(self, xs, y):
         """
@@ -321,9 +334,23 @@ class LanguageIDModel(object):
         Returns: a loss node
         """
         "*** YOUR CODE HERE ***"
+        y_pred = self.run(xs)
+        return nn.SoftmaxLoss(y_pred, y)
 
     def train(self, dataset):
         """
         Trains the model.
         """
         "*** YOUR CODE HERE ***"
+        for x, y in dataset.iterate_forever(self.batch_size):
+            loss = self.get_loss(x, y)
+            grad_W_1, grad_b_1, grad_W_2, grad_b_2, grad_W_hidden = nn.gradients(loss, [self.W_1, self.b_1, self.W_2, self.b_2, self.W_hidden])
+
+            self.W_1.update(grad_W_1, -self.learning_rate)
+            self.b_1.update(grad_b_1, -self.learning_rate)
+            self.W_2.update(grad_W_2, -self.learning_rate)
+            self.b_2.update(grad_b_2, -self.learning_rate)
+            self.W_hidden.update(grad_W_hidden, -self.learning_rate)
+
+            if dataset.get_validation_accuracy() >= 0.85:
+                return
