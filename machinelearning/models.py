@@ -352,5 +352,5 @@ class LanguageIDModel(object):
             self.b_2.update(grad_b_2, -self.learning_rate)
             self.W_hidden.update(grad_W_hidden, -self.learning_rate)
 
-            if dataset.get_validation_accuracy() >= 0.85:
+            if dataset.get_validation_accuracy() >= 0.875:
                 return
